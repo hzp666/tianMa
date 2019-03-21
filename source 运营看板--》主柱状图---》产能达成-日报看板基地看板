@@ -1,0 +1,18 @@
+
+SELECT TEMP.produce_quantity_location,
+avg(TEMP.produce_quantity_base_month),
+SUM(TEMP.produce_quantity_done_quantity),
+SUM(TEMP.produce_quantity_done_quantity)/avg(TEMP.produce_quantity_base_month) AS produce_quantity_rate  
+FROM  ( 
+	SELECT * FROM quantity_day_report  
+	where  produce_quantity_plan_year like  '%${pqpy}%' 
+	and produce_quantity_plan_season  like  '%${pqps}%'  
+	and produce_quantity_plan_month  regexp  '${pqpm}' 
+	and produce_quantity_plan_week  regexp  '${pqpw}'  
+	and  produce_quantity_type regexp '${pqt}' 
+	and produce_quantity_factory regexp   '${pqf}'  
+	and  produce_quantity_location regexp  '${pql}'  
+	and produce_quantity_gap_flag = false 
+	and (unix_timestamp(produce_quantity_date) >= unix_timestamp('${pqd1}') 
+	and unix_timestamp(produce_quantity_date) <= (case when length('${pqd2}')=0 then unix_timestamp(now()) else  unix_timestamp('${pqd2}') end )) ) AS TEMP 
+GROUP BY TEMP.produce_quantity_location
