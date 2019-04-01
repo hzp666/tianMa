@@ -1,0 +1,112 @@
+Produce_Quantity_Location, Produce_Quantity_Organize, Produce_Quantity_Factory, Produce_Fir_Manage, Produce_Sec_Manage, Start_Date, End_Date, 
+
+
+
+
+
+
+SELECT *
+FROM (SELECT b. *,a.Order_id, a. Start_Date, a. End_Date, a. WIP_Money, a. Plan_Amount, a. Cumulate_Complete_Amount, a. DeadLine_Save_Amount, a. Estimate_Produce_Cycle, a. Standard_Produce_Cycle, a. Actual_Produce_Cycle, a. Produce_Prepare_Time, a. Fir_Produce_Cycle, a. Last_Produce_Cycle, a. Close_Rate, a. Close_Rate_Time, a. Close_Rate_Time_Enough, a. Achieve_Rate_Enough, a. Achieve_Rate_Time_Enough, a. Online_Day, a. Close_Amount_Total, a. Close_Amount_Should, a. Close_Amount_InTime, a. Close_Amount_InTime_Enough, a. Overdue_Day, a. Overdue_Amount, a. Overdue_Money, a. Miss_Money, a. Plan_Close_Rate_Month, a. Plan_Overdue_Amount_Month, a. Plan_Close_Rate_Next_Month, a. Plan_Overdue_Amount_Next_Month, a. Deadline_Complete_Amount
+FROM fact_order_head a
+left join dim_base b on a.Produce_Sec_Manage = b.Produce_Sec_Manage) a
+where a.Produce_Quantity_Location is not null
+and a.Produce_Quantity_Location regexp '${pql}'
+and a.Produce_Quantity_Organize regexp '${pqo}'
+and a.Produce_Quantity_Factory regexp '${pqf}'
+and a.Produce_Fir_Manage regexp '${pfm}'
+and a.Produce_Sec_Manage regexp '${psm}'
+and to_days(a.Start_Date) >= to_days('${begin_date}')
+and to_days(a.Start_Date) < to_days('${end_date}')
+
+
+
+
+pqf		模组|蒸镀|面板|委外
+
+pfm  	上海G4.5-车载|上海OLED-CELL|上海OLED-模组|上海OLED-蒸镀|厦门G5.5-CF|厦门G6-CF|武汉G4.6-CF|上海G4.5-工业品|中航面板委外
+
+pql  	A-SI产业基地群|LTPS产业基地群|OLED产业基地群
+
+psm    	上海G4.5-工业品|上海G4.5-车载|上海OLED-CELL|上海OLED-模组|上海OLED-蒸镀|中航面板委外|厦门G5.5-CF|厦门G6-CF|武汉G4.5-CF
+
+pqo   	上海G4.5产业基地-量产|上海G4.6产业基地-量产|上海有机发光产业基地-量产|上海G7产业基地-量产|厦门G5.5产业基地-量产|厦门G6产业基地-量产|武汉G4.6产业基地-量产
+
+data_flag  2019-03|2019-04|2019-05
+
+len($para)==0
+
+
+SELECT Produce_Quantity_Location, Produce_Quantity_Organize, Produce_Quantity_Factory, Produce_Fir_Manage, Produce_Sec_Manage, Order_id, Start_Date, End_Date, WIP_Money, Plan_Amount, Cumulate_Complete_Amount, DeadLine_Save_Amount, cast(Estimate_Produce_Cycle as SIGNED), Standard_Produce_Cycle, Actual_Produce_Cycle, Produce_Prepare_Time, Fir_Produce_Cycle, Last_Produce_Cycle, cast(Close_Rate as SIGNED) as Close_Rate, Close_Rate_Time, Close_Rate_Time_Enough, Achieve_Rate_Enough, Achieve_Rate_Time_Enough, Online_Day, Close_Amount_Total, Close_Amount_Should, Close_Amount_InTime, Close_Amount_InTime_Enough, Overdue_Day, Overdue_Amount, cast(Overdue_Money as SIGNED) as Overdue_Money, Miss_Money, Plan_Close_Rate_Month, Plan_Overdue_Amount_Month, Plan_Close_Rate_Next_Month, Plan_Overdue_Amount_Next_Month, Deadline_Complete_Amount, date_flag,case when overdue_day - 60 > 0  then (overdue_day - 60)  else 0 end as overdue_day_more60,case when overdue_day - 60 > 0  then 60  else overdue_day end as overdue_day1
+
+
+
+var pqo = this.options.form.getWidgetByName("pqo");  
+var pql = this.options.form.getWidgetByName("pql");  
+var thislen = this.getValue(pql).length;  
+
+if(thislen) {  
+				
+						
+			pqo.setVisible(true);  
+			this.options.form.getWidgetByName("labelpqo").setVisible(true);
+						
+						
+    
+} else {      
+    pqo.setVisible(false); 
+    this.options.form.getWidgetByName("labelpqo").setVisible(false);
+     
+}
+
+
+
+
+
+var pqf = this.options.form.getWidgetByName("pqf");  
+var pqo = this.options.form.getWidgetByName("pqo");  
+var thislen = this.getValue(pqo).length;  
+if(thislen) {  
+    pqf.setVisible(true);  
+    this.options.form.getWidgetByName("labelpqf").setVisible(true);  
+} else {      
+    pqf.setVisible(false);  
+    this.options.form.getWidgetByName("labelpqf").setVisible(false);  
+    
+}  
+
+
+
+
+var state = this.options.form.getWidgetByName("state");  
+var username = this.options.form.getWidgetByName("username").getValue();  
+if(!username) {  
+    state.setValue(2);  
+} else {  
+    state.setValue(1);  
+}  
+
+
+
+=======================帆软 工单主表 查询SQL =   第一版==========================================
+
+SELECT Produce_Quantity_Location, Produce_Quantity_Organize, Produce_Quantity_Factory, Produce_Fir_Manage, Produce_Sec_Manage, Order_id, Start_Date, End_Date, WIP_Money, Plan_Amount, Cumulate_Complete_Amount, DeadLine_Save_Amount, Estimate_Produce_Cycle, Standard_Produce_Cycle, Actual_Produce_Cycle, Produce_Prepare_Time, Fir_Produce_Cycle, Last_Produce_Cycle, cast(Close_Rate as SIGNED) as Close_Rate, Close_Rate_Time, Close_Rate_Time_Enough, Achieve_Rate_Enough, Achieve_Rate_Time_Enough, cast(Online_Day as SIGNED) as Online_Day, Close_Amount_Total, Close_Amount_Should, Close_Amount_InTime, Close_Amount_InTime_Enough, Overdue_Day, Overdue_Amount, cast(Overdue_Money as SIGNED) as Overdue_Money, Miss_Money, Plan_Close_Rate_Month, Plan_Overdue_Amount_Month, Plan_Close_Rate_Next_Month, Plan_Overdue_Amount_Next_Month, Deadline_Complete_Amount, date_flag,case when overdue_day - 60 > 0  then (overdue_day - 60)  else 0 end as overdue_day_more60,case when overdue_day - 60 > 0  then 60  else overdue_day end as overdue_day1
+FROM v_fact_order_head a
+where  a.Produce_Quantity_Location regexp '${pql}'
+and a.Produce_Quantity_Organize regexp '${pqo}'
+and a.Produce_Quantity_Factory regexp '${pqf}'
+and a.Produce_Fir_Manage regexp '${pfm}'
+and a.Produce_Sec_Manage regexp '${psm}'
+and date_flag regexp '${date_flag}'
+order by date_flag 
+
+
+
+
+
+
+
+
+
+
+
+
