@@ -1,0 +1,39 @@
+import pymysql
+
+# create the connection
+db = pymysql.connect('localhost', 'root', '123456', 'tianma_bi')
+
+# create a cursor
+cursor = db.cursor()
+
+# the Sale_Fir__Name
+Sale_Fir__Name = ['专显', '消费品']
+Sale_Sec_Name = ['产品类', '销售组']
+
+for fir_name_column in Sale_Fir__Name:
+    for sec_name_column in Sale_Sec_Name:
+        for year in range(2019, 2026):
+            for month in range(1, 13):
+                year_month = str(year) + '-' + str(month)
+                if month <= 3:
+                    Quarter = 1
+                elif 3 < month <= 6:
+                    Quarter = 2
+                elif 6 < month <= 9:
+                    Quarter = 3
+                else:
+                    Quarter = 4
+
+                null = 'null'
+
+                sql = '''insert into app_pl_sale_cumulate_info_fact1
+    (Sale_Fir__Code, Sale_Fir__Name, Sale_Sec_Code, Sale_Sec_Name, `Year`, `Month`, `Quarter`, `Year_Month`, Estimate_Amount, Plan_Amount, Sale_Amount, Plan_Rate, Note, Focus_Forward, Flag, Record_Date)
+    values(%s,'%s',%s,'%s',%s,%s,%s,'%s',%s,%s,%s,%s,%s,%s,%s,%s)'''% (null, fir_name_column, null, sec_name_column, year, month, Quarter, year_month, null, null, null, null, null, null, null, null)
+                print(fir_name_column)
+                cursor.execute(sql)
+                db.commit()
+
+
+# close connection
+cursor.close()
+db.close()
