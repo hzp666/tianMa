@@ -1,0 +1,31 @@
+SELECT 
+`Produce_Quantity_Location`,
+    `Produce_Quantity_Organize`,
+    `Produce_Quantity_Factory`,
+    `Plan_Close_Rate`,
+    `Plan_Overdue_Num`,
+    `Total_Num`,
+    `Overdue_Num`,
+    `Overdue_Num_Less30Day`,
+    `Overdue_Num_Less60Day`,
+    `Overdue_Num_More60Day`,
+    `Actual_Overdue_Amount`,
+    `Actual_Close_Rate`,
+    `Overdue_Num_Rate`,
+    `Year`,
+     `Month`,
+    `Quarter`,
+    `Standard_Produce_Cycle`,
+    `Prepare_Produce_Time`,
+    `Fir_Produce_Cycle`,
+    `Last_Produce_Cycle`,
+    `Online_Day`,
+    `Record_Date`
+FROM app_wo_order_month_fact a
+where 1=1
+and a.Produce_Quantity_Location ='A-SI产业基地群'
+${if(len(pql) == 0,"and a.Produce_Quantity_Location ='A-SI产业基地群'","and a.Produce_Quantity_Location ='A-SI产业基地群'")}
+${if(len(pqo) == 0,"","and a.Produce_Quantity_Organize regexp '"+ pqo +"'")}
+${if(len(pqf) == 0,"","and a.Produce_Quantity_Factory regexp '"+ pqf +"'")}
+${if(len(year) == 0,"","and a.year = '"+ year +"'")}
+${if(len(month) == 0,"","and a.month = '"+ month +"'")}
