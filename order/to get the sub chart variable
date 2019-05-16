@@ -1,0 +1,7 @@
+SELECT Produce_Quantity_Location, Produce_Quantity_Organize, Produce_Quantity_Factory, Produce_Fir_Manage, Produce_Sec_Manage, Order_id, Start_Date, End_Date, WIP_Money, Plan_Amount, Cumulate_Complete_Amount, DeadLine_Save_Amount, Estimate_Produce_Cycle, Standard_Produce_Cycle, Actual_Produce_Cycle, Produce_Prepare_Time, Fir_Produce_Cycle, Last_Produce_Cycle, cast(Close_Rate as SIGNED) as Close_Rate, Close_Rate_Time, Close_Rate_Time_Enough, Achieve_Rate_Enough, Achieve_Rate_Time_Enough, cast(Online_Day as SIGNED) as Online_Day, Close_Amount_Total, Close_Amount_Should, Close_Amount_InTime, Close_Amount_InTime_Enough, Overdue_Day, Overdue_Amount, cast(Overdue_Money as SIGNED) as Overdue_Money, Miss_Money, Plan_Close_Rate_Month, Plan_Overdue_Amount_Month, Plan_Close_Rate_Next_Month, Plan_Overdue_Amount_Next_Month, Deadline_Complete_Amount, date_flag,case when overdue_day - 60 > 0  then (overdue_day - 60)  else 0 end as overdue_day_more60,case when overdue_day - 60 > 0  then 60  else overdue_day end as overdue_day1
+FROM v_fact_order_head a
+where 1=1
+and a.date_flag  = substring_index('${var}',',',1)
+and a.Produce_Quantity_Location = substring('${var}', INSTR('${var}', ',')+1)    
+
+order by date_flag 
