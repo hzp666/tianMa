@@ -1,0 +1,108 @@
+import pymysql
+import random
+import decimal
+
+# create the connection
+db = pymysql.connect('localhost', 'root', '123456', 'tianma_bi')
+
+# create a cursor
+cursor = db.cursor()
+
+# # prepare the Sale_Fir__Name, Sale_Sec_Name
+Produce_Quantity_Location = (['A-SI产业基地群', '上海G4.5产业基地', '委外'],
+['A-SI产业基地群', '上海G4.5产业基地', '工业品模组厂'],
+['A-SI产业基地群', '上海G4.5产业基地', '车载模组厂'],
+['A-SI产业基地群', '上海G4.5产业基地', '面板厂'],
+['A-SI产业基地群', '上海G5产业基地', '委外'],
+['A-SI产业基地群', '上海G5产业基地', '模组厂'],
+['A-SI产业基地群', '上海G5产业基地', '面板厂'],
+['A-SI产业基地群', '成都G4.5产业基地', '委外'],
+['A-SI产业基地群', '成都G4.5产业基地', '面板厂'],
+['A-SI产业基地群', '武汉G4.5产业基地', 'CF厂'],
+['A-SI产业基地群', '武汉G4.5产业基地', '委外'],
+['A-SI产业基地群', '武汉G4.5产业基地', '模组一厂'],
+['A-SI产业基地群', '武汉G4.5产业基地', '模组二厂'],
+['A-SI产业基地群', '武汉G4.5产业基地', '面板厂'],
+['A-SI产业基地群', '深圳产业基地', '工业品厂'],
+['A-SI产业基地群', '深圳产业基地', '车载厂'],
+['A-SI产业基地群', '深圳产业基地', '面板厂'],
+['LTPS产业基地群', '厦门G5.5产业基地', 'CF厂'],
+['LTPS产业基地群', '厦门G5.5产业基地', '委外'],
+['LTPS产业基地群', '厦门G5.5产业基地', '模组厂'],
+['LTPS产业基地群', '厦门G5.5产业基地', '背光厂'],
+['LTPS产业基地群', '厦门G5.5产业基地', '面板厂'],
+['LTPS产业基地群', '厦门G6产业基地', 'CF厂'],
+['LTPS产业基地群', '厦门G6产业基地', '委外'],
+['LTPS产业基地群', '厦门G6产业基地', '模组厂'],
+['LTPS产业基地群', '厦门G6产业基地', '面板厂'],
+['OLED产业基地群', '上海有机发光产业基地', '委外'],
+['OLED产业基地群', '上海有机发光产业基地', '模组厂'],
+['OLED产业基地群', '上海有机发光产业基地', '蒸镀厂'],
+['OLED产业基地群', '武汉G6产业基地', '委外'],
+['OLED产业基地群', '武汉G6产业基地', '模组厂'],
+['OLED产业基地群', '武汉G6产业基地', '蒸镀厂'],
+['OLED产业基地群', '武汉G6产业基地', '面板厂'])
+
+# prepare the data
+for i in Produce_Quantity_Location:
+    for year in range(2018, 2021):
+
+        for month in range(1, 13):
+
+            # judge the quarter
+            if month <= 3:
+                Quarter = 1
+            elif 3 < month <= 6:
+                Quarter = 2
+            elif 6 < month <= 9:
+                Quarter = 3
+            else:
+                Quarter = 4
+
+            # prepare the data
+            Total_Num = random.randint(100, 5000)
+            Plan_Overdue_Num = random.randint(10, Total_Num)
+            Actual_Overdue_Num = random.randint(1, Total_Num)
+            Overdue_Num_Less30Day = random.randint(0, Actual_Overdue_Num)
+            Overdue_Num_Less60Day = random.randint(0, Actual_Overdue_Num-Overdue_Num_Less30Day)
+            Overdue_Num_More60Day = random.randint(0, Actual_Overdue_Num-Overdue_Num_Less30Day-Overdue_Num_Less60Day)
+            Plan_Close_Rate = random.random()
+            Actual_Close_Rate = random.random()
+            Actual_Overdue_Amount = random.randint(3000, 50000)
+            Standard_Produce_Cycle = random.randint(10, 50)
+            Prepare_Produce_Time = random.randint(1, Standard_Produce_Cycle)
+            Overdue_Num_Rate = int((Actual_Overdue_Num/Total_Num)*100)/100
+            Online_Day = random.randint(12, 55)
+            Fir_Produce_Cycle = random.randint(1, int(Online_Day/2))
+            Last_Produce_Cycle = random.randint(1, int(Online_Day/2))
+            null = 'null'
+
+            sql = '''insert into app_wo_order_month_fact1( PQL_Code, Produce_Quantity_Location, PQO_Code, Produce_Quantity_Organize, PQF_Code, Produce_Quantity_Factory, Produce_Fir_Manage_Code, Produce_Fir_Manage_Name, Produce_Sec_Manage_Code, Produce_Sec_Manage_Name, Plan_Close_Rate, Plan_Overdue_Num, Total_Num, Actual_Overdue_Num, Overdue_Num_Less30Day, Overdue_Num_Less60Day, Overdue_Num_More60Day, Actual_Overdue_Amount, Actual_Close_Rate, Overdue_Num_Rate, `Year`, `Month`, `Quarter`, Standard_Produce_Cycle, Prepare_Produce_Time, Fir_Produce_Cycle, Last_Produce_Cycle, Online_Day, Record_Date)
+            values('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)''' % (null , i[0], null, i[1], null, i[2], null, null, null, null, Plan_Close_Rate,
+            Plan_Overdue_Num,
+            Total_Num,
+            Actual_Overdue_Num,
+            Overdue_Num_Less30Day,
+            Overdue_Num_Less60Day,
+            Overdue_Num_More60Day,
+            Actual_Overdue_Amount,
+            Actual_Close_Rate,
+            Overdue_Num_Rate,
+            year,
+            month,
+            Quarter,
+            Standard_Produce_Cycle,
+            Prepare_Produce_Time,
+            Fir_Produce_Cycle,
+            Last_Produce_Cycle,
+            Online_Day,
+            null)
+
+            cursor.execute(sql)
+            db.commit()
+            
+
+
+# close connection
+cursor.close()
+db.close()
