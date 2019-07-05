@@ -1,0 +1,24 @@
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` FUNCTION `Fir_Work_Day`(interval_day nvarchar(10)) RETURNS int(11) 
+# the var interval_day is how many day ,first work day to add 
+BEGIN   
+	/*DECLARE day_temp INTEGER;
+    DECLARE month_temp INTEGER;*/
+    DECLARE date_flag date;
+ 
+select min(`date`)  into date_flag
+from dim_date
+where y = year(now())
+and m = month(now())
+and Holiday_flag in(0,2);  
+
+if CURDATE() <= ADDDATE(date_flag, INTERVAL interval_day day) 
+
+then return 0;  # month need -1
+ELSE return 1;  # month not need change
+end if;
+
+ 
+END$$
+DELIMITER ;
