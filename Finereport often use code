@@ -1,0 +1,4 @@
+
+and   produce_quantity_plan_week  regexp  '${pqpw}'  
+
+-----------------------------------------
