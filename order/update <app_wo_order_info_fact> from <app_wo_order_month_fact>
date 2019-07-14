@@ -1,0 +1,9 @@
+ SET SQL_SAFE_UPDATES = 0;
+update app_wo_order_info_fact, app_wo_order_month_fact
+set app_wo_order_info_fact.Actual_intime_Num = app_wo_order_month_fact.Actual_intime_Num,
+ app_wo_order_info_fact.total_num = app_wo_order_month_fact.total_num,
+ app_wo_order_info_fact.Actual_Overdue_Num = app_wo_order_month_fact.Actual_Overdue_Num,
+ app_wo_order_info_fact.Actual_Overdue_amount = app_wo_order_month_fact.Actual_Overdue_amount
+where app_wo_order_month_fact.Produce_Quantity_Organize  = app_wo_order_info_fact.Produce_Quantity_Organize
+and app_wo_order_month_fact.Produce_Quantity_Factory  = app_wo_order_info_fact.Produce_Quantity_Factory
+and app_wo_order_month_fact.`year_month` = app_wo_order_info_fact.`year_month`
