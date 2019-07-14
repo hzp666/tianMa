@@ -1,0 +1,1 @@
+if(len(month(now()))==1, CONCATENATE(year(now()),0,month(now())), CONCATENATE(year(now()),month(now())))
