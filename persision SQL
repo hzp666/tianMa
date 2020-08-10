@@ -1,0 +1,316 @@
+全局参数：
+
+org_level:
+
+SQL("my_user","select
+	min(x1.org_level) org_level
+from dim_permission x0
+left join dim_org x1
+	on x0.org_id=x1.org_id
+where x0.user_code = '"+$fine_username+"'",1,1)
+
+-----------------------
+org_list：
+
+joinarray(
+SQL("my_user",
+"select
+	x0.org_id
+from
+(
+	-- level1
+	select
+		org_id
+	from dim_permission
+	where user_code='"+ fine_username +"'
+
+	union
+
+	-- level2
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(	-- level1
+			select
+				org_id
+			from dim_permission
+			where user_code='"+ fine_username +"'
+		)
+
+	union
+
+	-- level3
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level2
+			select
+				org_id
+			from dim_org
+			where fa_org_id in
+				(	-- level1
+					select
+						org_id
+					from dim_permission
+					where user_code='"+ fine_username +"'
+				)
+		)
+		
+	union
+
+	-- level4
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level3
+			select
+				org_id
+			from dim_org
+			where fa_org_id in
+				(-- level2
+					select
+						org_id
+					from dim_org
+					where fa_org_id in
+						(-- level1
+						-- level1
+								select
+									org_id
+								from dim_permission
+								where user_code='"+ fine_username +"'
+						)
+				)
+		)
+		
+	union
+
+	-- level5
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level4
+		select
+			org_id
+		from dim_org
+		where fa_org_id in
+			(-- level3
+				select
+					org_id
+				from dim_org
+				where fa_org_id in
+					(-- level2
+						select
+							org_id
+						from dim_org
+						where fa_org_id in
+							(-- level1
+								-- level1
+										select
+											org_id
+										from dim_permission
+										where user_code='"+ fine_username +"'
+							)
+					)
+			)
+		)
+) x0
+left join dim_org x1
+	on x0.org_id=x1.org_id"
+,1)
+,"','")
+
+
+--------------------
+org_list_admin：
+
+joinarray(
+SQL("my_user",
+"select
+	x0.org_id
+from
+(
+	-- level1
+	select
+		org_id
+	from dim_user
+	where code='"+ fine_username +"'
+
+	union
+
+	-- level2
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(	-- level1
+			select
+				org_id
+			from dim_user
+			where code='"+ fine_username +"'
+		)
+
+	union
+
+	-- level3
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level2
+			select
+				org_id
+			from dim_org
+			where fa_org_id in
+				(	-- level1
+					select
+						org_id
+					from dim_user
+					where code='"+ fine_username +"'
+				)
+		)
+		
+	union
+
+	-- level4
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level3
+			select
+				org_id
+			from dim_org
+			where fa_org_id in
+				(-- level2
+					select
+						org_id
+					from dim_org
+					where fa_org_id in
+						(-- level1
+						-- level1
+								select
+									org_id
+								from dim_user
+								where code='"+ fine_username +"'
+						)
+				)
+		)
+		
+	union
+
+	-- level5
+	select
+		org_id
+	from dim_org
+	where fa_org_id in
+		(-- level4
+		select
+			org_id
+		from dim_org
+		where fa_org_id in
+			(-- level3
+				select
+					org_id
+				from dim_org
+				where fa_org_id in
+					(-- level2
+						select
+							org_id
+						from dim_org
+						where fa_org_id in
+							(-- level1
+								-- level1
+										select
+											org_id
+										from dim_user
+										where code='"+ fine_username +"'
+							)
+					)
+			)
+		)
+) x0
+left join dim_org x1
+	on x0.org_id=x1.org_id"
+,1)
+,"','")
+
+-----------------------------------
+org_level_admin：
+
+SQL("my_user","select
+	x1.org_level org_level
+from dim_user x0
+left join dim_org x1
+	on x0.org_id=x1.org_id
+where x0.code = '"+$fine_username+"'",1,1)
+
+
+
+
+==============================树数据集===========================================
+用户树 ，由数据库查询和树数据集 两部分组成
+
+数据库查询 fr_user:
+
+select 
+	x0.user_name,
+	x0.user_password,
+	x0.org_id,
+	x1.fa_org_id,
+	x0.role_code,
+	x0.role_name,
+	x1.org_name,
+	x0.code,
+	'default' post
+from dim_user x0
+left join dim_org x1
+	on x0.org_id=x1.org_id
+
+union all
+
+select
+	null,
+	null,
+	org_id,
+	fa_org_id,
+	null,
+	null,
+	org_name,
+	null,
+	'default' post
+from dim_org
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+树数据集：fr_user_tree:
+
+
+配置如下：
+1.数据集：fr_user
+2.原始标记字段：org_id
+3.父标记字段：fa_org_id
+
+------------------------------------------
+
+
+组织树  由数据库查询和树数据集 两部分组成
+
+
+数据库查询  right_org：
+
+select
+	*
+from view_org_level
+where ${switch(org_level_admin,1,"level1_id",2,"level2_id",3,"level3_id",4,"level4_id",5,"level5_id")} 
+in
+	(select org_id from dim_user where code = '${fine_username}')
+	or '${fine_username}'='admin'
+	
+	
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+填报界面中  单元格添加下拉树 控件，  绑定right_org数据库查询
+
