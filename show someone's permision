@@ -1,0 +1,5 @@
+select b.org_name
+from dim_permission a
+left join dim_org b on a.org_id = b.org_id
+left join dim_user c on c.`code` = a.user_code
+where c.user_name = '陈晓倩'
