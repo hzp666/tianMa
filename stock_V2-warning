@@ -870,22 +870,11 @@ group by YEAR_MONTH_ID,INV_CATEGORY
 
 select YEAR_MONTH_ID as `year_month`,'集团总计' as org1, '国内库存' as org2, 1 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where MANAGEMENT_ENTITY_L1 = '集团'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -894,24 +883,13 @@ select YEAR_MONTH_ID as `year_month`,
 '消费品成品' as org2,
 2 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and MANAGEMENT_ENTITY_L3 = '消费品-成品'
 and MANAGEMENT_ENTITY_L4 in ('A-SI成品','LTPS成品','OLED成品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -922,24 +900,13 @@ select YEAR_MONTH_ID as `year_month`,
 '外卖CELL' as org2,
 3 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and MANAGEMENT_ENTITY_L3 = '消费品-成品'
 and MANAGEMENT_ENTITY_L4 in ('A-SI外卖','LTPS外卖','OLED外卖')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -948,23 +915,12 @@ select YEAR_MONTH_ID as `year_month`,
 '通用材料' as org2,
 4 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and MANAGEMENT_ENTITY_L3 = '消费品-通用组'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -973,24 +929,13 @@ select YEAR_MONTH_ID as `year_month`,
 '车载成品' as org2,
 5 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and MANAGEMENT_ENTITY_L3 = '专显-成品'
 and MANAGEMENT_ENTITY_L4='车载'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -999,24 +944,13 @@ select YEAR_MONTH_ID as `year_month`,
 '工业品' as org2,
 6 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and MANAGEMENT_ENTITY_L3 = '专显-成品'
 and MANAGEMENT_ENTITY_L4 in ('普通工业品','高端工业品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1025,24 +959,13 @@ select YEAR_MONTH_ID as `year_month`,
 '无源' as org2,
 7 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and MANAGEMENT_ENTITY_L3 = '专显-成品'
 and MANAGEMENT_ENTITY_L4  = '无源'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -1052,24 +975,13 @@ select YEAR_MONTH_ID as `year_month`,
 '通用材料' as org2,
 8 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and MANAGEMENT_ENTITY_L3 = '专显-通用组'
 
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1078,23 +990,12 @@ select YEAR_MONTH_ID as `year_month`,
 '面板材料' as org2,
 9 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '计划管理部'
 
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1103,50 +1004,28 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 10 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'LTPS计划部'
 and  MANAGEMENT_ENTITY_L3= '厦门计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
 select YEAR_MONTH_ID as `year_month`,
 '厦门运营部' as org1, 
-'半成品&WIP&专用材料' as org2,
+'半成品&WIP&材料' as org2,
 11 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'LTPS计划部'
 and  MANAGEMENT_ENTITY_L3= '厦门计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -1156,24 +1035,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 12 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '武汉G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -1183,24 +1051,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 13 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '武汉G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1209,24 +1066,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 14 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '成都G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1235,24 +1081,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 15 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '成都G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1261,24 +1096,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 16 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '上海G5计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1287,24 +1111,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 17 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '上海G5计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1313,24 +1126,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 18 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '上海G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1339,24 +1141,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 19 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '上海G4.5计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1365,24 +1156,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 20 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '深圳计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1391,24 +1171,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 21 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'A-SI计划部'
 and  MANAGEMENT_ENTITY_L3= '深圳计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1417,24 +1186,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 22 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'OLED计划部'
 and  MANAGEMENT_ENTITY_L3= '上海OLED计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1443,24 +1201,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 23 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'OLED计划部'
 and  MANAGEMENT_ENTITY_L3= '上海OLED计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -1470,24 +1217,13 @@ select YEAR_MONTH_ID as `year_month`,
 '备品&低耗' as org2,
 24 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'OLED计划部'
 and  MANAGEMENT_ENTITY_L3= '武汉G6计划部'
 and  MANAGEMENT_ENTITY_L4 in('备品备件','低耗')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1496,24 +1232,13 @@ select YEAR_MONTH_ID as `year_month`,
 '半成品&WIP&材料' as org2,
 25 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = 'OLED计划部'
 and  MANAGEMENT_ENTITY_L3= '武汉G6计划部'
 and  MANAGEMENT_ENTITY_L4 in('半成品','材料','在制品')
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1522,24 +1247,13 @@ select YEAR_MONTH_ID as `year_month`,
 '武汉G6' as org2,
 26 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and  MANAGEMENT_ENTITY_L3= '消费品-研发'
 and  MANAGEMENT_ENTITY_L4 ='武汉G6'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1548,24 +1262,13 @@ select YEAR_MONTH_ID as `year_month`,
 '上海OLED' as org2,
 27 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and  MANAGEMENT_ENTITY_L3= '消费品-研发'
 and  MANAGEMENT_ENTITY_L4 ='上海OLED'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1574,24 +1277,13 @@ select YEAR_MONTH_ID as `year_month`,
 '厦门' as org2,
 28 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and  MANAGEMENT_ENTITY_L3= '消费品-研发'
 and  MANAGEMENT_ENTITY_L4 ='厦门'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1600,24 +1292,13 @@ select YEAR_MONTH_ID as `year_month`,
 '武汉G4.5' as org2,
 29 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '消费品运营部'
 and  MANAGEMENT_ENTITY_L3= '消费品-研发'
 and  MANAGEMENT_ENTITY_L4 ='武汉G4.5'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1626,24 +1307,13 @@ select YEAR_MONTH_ID as `year_month`,
 '深圳' as org2,
 30 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and  MANAGEMENT_ENTITY_L3= '专显-研发'
 and  MANAGEMENT_ENTITY_L4 ='深圳'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1652,24 +1322,13 @@ select YEAR_MONTH_ID as `year_month`,
 '上海G4.5' as org2,
 31 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and  MANAGEMENT_ENTITY_L3= '专显-研发'
 and  MANAGEMENT_ENTITY_L4 ='上海G4.5'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 
 union all
@@ -1679,24 +1338,13 @@ select YEAR_MONTH_ID as `year_month`,
 '上海G5' as org2,
 32 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and  MANAGEMENT_ENTITY_L3= '专显-研发'
 and  MANAGEMENT_ENTITY_L4 ='上海G5'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  group by YEAR_MONTH_ID,INV_CATEGORY
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')
+group by YEAR_MONTH_ID,INV_CATEGORY
 
 union all
 
@@ -1705,25 +1353,12 @@ select YEAR_MONTH_ID as `year_month`,
 '成都G4.5' as org2,
 33 as index_order,
 case INV_CATEGORY when 1 then '总库存'  when 2 then '超90天库存' else '异常' end as INV_CATEGORY,
-sum(TARGET_ANNUAL) as TARGET_ANNUAL,
-sum(TARGET_MONTH) as TARGET_MONTH,
-sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 
-     else 3 end as ANNUAL_gap_rate_flag,/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,
-case when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0.1 then 1 
-	 when (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH)) / sum(TARGET_MONTH ) <= 0.1 then 2 
-     else 3 end as MONTH_gap_rate_flag/*1:gap rate > 10%；2: 0< gap rate < 10% 3: gap rate < 0*/
-FROM DWS_INV_MLY_MGTINV_ACHA
+sum(TARGET_ANNUAL) as TARGET_ANNUAL,sum(TARGET_MONTH) as TARGET_MONTH,sum(ITEM_COST_CNY_SUM) as ITEM_COST_CNY_SUM,sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL) as TARGET_ANNUAL_gap,/*year estimate gap*/sum(ITEM_COST_CNY_SUM) - sum(TARGET_MONTH) as TARGET_MONTH_gap,case when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0.1 then 1  when INV_CATEGORY =1 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL ) <= 0.1 then 2 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0.05 then 3	 when INV_CATEGORY =2 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) > 0 and (sum(ITEM_COST_CNY_SUM) - sum(TARGET_ANNUAL)) / sum(TARGET_ANNUAL) <= 0.05 then 4	 else 5 end as gap_rate_flag/*1:annual gap rate > 10%；2: 0< annual gap rate < 10%;    3: MONTH gap rate > 5%;  4: 0 < MONTH gap rate <= 5%*/ FROM DWS_INV_MLY_MGTINV_ACHA
 where  MANAGEMENT_ENTITY_L2 = '专显运营部'
 and  MANAGEMENT_ENTITY_L3= '专显-研发'
 and  MANAGEMENT_ENTITY_L4 ='成都G4.5'
 and YEAR_MONTH_ID  is not null
-and INV_CATEGORY is not null
-
-and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m')  
+and INV_CATEGORY is not null and YEAR_MONTH_ID >= date_format(date_add(curdate(),interval -2 month),'%Y%m') 
 group by YEAR_MONTH_ID,INV_CATEGORY
 
 
