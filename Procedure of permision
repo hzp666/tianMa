@@ -1,0 +1,80 @@
+delimiter $$
+CREATE  PROCEDURE `permision`(in p_fine_userName varchar(30), in p_permision_flag int, in p_dim_flag int, in p_visit_userName varchar(30), in p_view_cpt varchar(100), in p_temp5 varchar(100), in p_temp6 varchar(100),in p_temp7 varchar(100),in p_temp8 varchar(100))
+begin 
+/*get and judge the person's permision org level*/
+declare p_org_level int;
+
+/*judge situation need to transform domain into staffCode or not*/
+if p_permision_flag = 0 
+then 
+	if p_fine_userName = 'CRMTEST'
+    then 
+		
+		select min(org_level) into p_org_level
+        from dim_org
+        where org_id in (select a.org_id
+        from dim_permission a
+        where dim_flag = p_dim_flag
+        and user_code = ( select user_code 
+        from app_user_info_dim
+        where user_def5 = p_visit_userName ));
+        
+        if p_org_level = 1
+        then 
+			select Org_Fir,Org_Thr
+            from APP_IO_ConsumpTable_Fact
+            where `month` = month(date_add(curdate(),interval -2 day))
+			and `year` = year(date_add(curdate(),interval -2 day))
+            group by Org_Fir,Org_Thr;
+        else
+			if p_visit_userName = 'qifeng_zhao'
+            then 
+				select '穿戴' as Org_Fir,'穿戴' as Org_Thr;
+            else
+				select '集团' as Org_Fir,org_name as Org_Thr
+				from dim_org
+				where org_id in (select a.org_id
+				from dim_permission a
+				where dim_flag = p_dim_flag
+				and user_code = ( select user_code 
+				from app_user_info_dim
+				where user_def5 = p_visit_userName ));
+            end if;
+        end if;
+        
+    else
+    /* platform's other SSO */
+		select null;
+    end if;
+else
+	/*no SSO,single login*/
+	select min(org_level) into p_org_level
+	from dim_org
+	where org_id in (select a.org_id
+	from dim_permission a
+	where dim_flag = p_dim_flag
+	and user_code = p_fine_userName);
+	
+	if p_org_level = 1
+	then 
+		select Org_Fir,Org_Thr
+		from APP_IO_ConsumpTable_Fact
+		where `month` = month(date_add(curdate(),interval -2 day))
+		and `year` = year(date_add(curdate(),interval -2 day))
+		group by Org_Fir,Org_Thr;
+	else
+		if p_fine_userName = 'C119050'
+		then 
+			select '穿戴' as Org_Fir,'穿戴' as Org_Thr;
+		else
+			select '集团' as Org_Fir,org_name as Org_Thr
+			from dim_org
+			where org_id in (select a.org_id
+			from dim_permission a
+			where dim_flag = p_dim_flag
+			and user_code = p_fine_userName);
+		end if;
+	end if;
+       
+end if;
+end $$
