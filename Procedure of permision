@@ -1,5 +1,5 @@
-delimiter $$
-CREATE  PROCEDURE `permision`(in p_fine_userName varchar(30), in p_permision_flag int, in p_dim_flag int, in p_visit_userName varchar(30), in p_view_cpt varchar(100), in p_temp5 varchar(100), in p_temp6 varchar(100),in p_temp7 varchar(100),in p_temp8 varchar(100))
+DELIMITER $$
+CREATE DEFINER=`root`@`%` PROCEDURE `permision`(in p_fine_userName varchar(30), in p_permision_flag int, in p_dim_flag int, in p_visit_userName varchar(30), in p_view_cpt varchar(100), in p_temp5 varchar(100), in p_temp6 varchar(100),in p_temp7 varchar(100),in p_temp8 varchar(100))
 begin 
 /*get and judge the person's permision org level*/
 declare p_org_level int;
@@ -29,9 +29,9 @@ then
         else
 			if p_visit_userName = 'qifeng_zhao'
             then 
-				select '穿戴' as Org_Fir,'穿戴' as Org_Thr;
+				select '穿戴业务部' as Org_Fir,'穿戴' as Org_Thr;
             else
-				select '集团' as Org_Fir,org_name as Org_Thr
+				select '消费品' as Org_Fir,org_name as Org_Thr
 				from dim_org
 				where org_id in (select a.org_id
 				from dim_permission a
@@ -43,7 +43,7 @@ then
         end if;
         
     else
-    /* platform's other SSO */
+    /* others SSO */
 		select null;
     end if;
 else
@@ -65,9 +65,9 @@ else
 	else
 		if p_fine_userName = 'C119050'
 		then 
-			select '穿戴' as Org_Fir,'穿戴' as Org_Thr;
+			select '穿戴业务部' as Org_Fir,'穿戴' as Org_Thr;
 		else
-			select '集团' as Org_Fir,org_name as Org_Thr
+			select '消费品' as Org_Fir,org_name as Org_Thr
 			from dim_org
 			where org_id in (select a.org_id
 			from dim_permission a
@@ -77,4 +77,4 @@ else
 	end if;
        
 end if;
-end $$
+end$$
